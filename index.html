@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мой Не Сам — клининговые услуги</title>
+</head>
+<body>
+
+<header>
+    <div class="logo"> Мой Не Сам</div>
+    <nav id="nav"></nav>
+</header>
+
+<main>
+    <div id="messages"></div>
+
+    <!-- ГЛАВНАЯ -->
+    <section class="page" id="page-home">
+        <h1>Добро пожаловать на портал «Мой Не Сам»!</h1>
+        <div class="info-box">
+            Здесь вы можете оставить заявку на уборку жилых и производственных помещений.
+            Зарегистрируйтесь и оформите заявку за 1 минуту.
+        </div>
+        <br>
+        <button class="btn" onclick="go('register')">Регистрация</button>
+        <button class="btn" onclick="go('login')">Войти</button>
+    </section>
+
+    <!-- РЕГИСТРАЦИЯ -->
+    <section class="page" id="page-register">
+        <h1>Регистрация</h1>
+        <form onsubmit="doRegister(event)">
+            <input type="text" id="reg-login" placeholder="Логин (мин. 3 символа)" required>
+            <input type="password" id="reg-pass" placeholder="Пароль (мин. 6 символов)" required>
+            <input type="text" id="reg-fio" placeholder="ФИО (только кириллица)" required>
+            <input type="text" id="reg-phone" placeholder="+7(999)-123-45-67" required>
+            <input type="email" id="reg-email" placeholder="Email" required>
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+        <p class="hint">Уже есть аккаунт? <a href="#" onclick="go('login'); return false;">Войти</a></p>
+    </section>
+
+    <!-- ВХОД -->
+    <section class="page" id="page-login">
+        <h1>Вход</h1>
+        <form onsubmit="doLogin(event)">
+            <input type="text" id="log-login" placeholder="Логин" required>
+            <input type="password" id="log-pass" placeholder="Пароль" required>
+            <button type="submit">Войти</button>
+        </form>
+        <p class="hint">Тестовый админ: <b>adminka</b> / <b>password</b></p>
+        <p class="hint">Нет аккаунта? <a href="#" onclick="go('register'); return false;">Зарегистрироваться</a></p>
+    </section>
+
+    <!-- МОИ ЗАЯВКИ -->
+    <section class="page" id="page-dashboard">
+        <h1>Мои заявки</h1>
+        <button class="btn" onclick="go('create')">+ Новая заявка</button>
+        <div id="dashboard-content"></div>
+    </section>
+
+    <!-- СОЗДАНИЕ ЗАЯВКИ -->
+    <section class="page" id="page-create">
+        <h1>Новая заявка</h1>
+        <form onsubmit="doCreate(event)">
+            <input type="text" id="cr-address" placeholder="Адрес" required>
+            <input type="text" id="cr-phone" placeholder="+7(999)-123-45-67" required>
+            <select id="cr-service" required onchange="toggleCustom()">
+                <option value="">— Выберите услугу —</option>
+                <option value="Общий клининг">Общий клининг</option>
+                <option value="Генеральная уборка">Генеральная уборка</option>
+                <option value="Послестроительная уборка">Послестроительная уборка</option>
+                <option value="Химчистка ковров и мебели">Химчистка ковров и мебели</option>
+                <option value="Иная услуга">Иная услуга</option>
+            </select>
+            <input type="text" id="cr-custom" placeholder="Опишите услугу" class="hidden">
+            <input type="date" id="cr-date" required>
+            <input type="time" id="cr-time" required>
+            <select id="cr-pay" required>
+                <option value="cash">Наличные</option>
+                <option value="card">Банковская карта</option>
+            </select>
+            <button type="submit">Отправить заявку</button>
+        </form>
+    </section>
+
+    <!-- АДМИНКА -->
+    <section class="page" id="page-admin">
+        <h1>Панель администратора</h1>
+        <div id="admin-content"></div>
+    </section>
+
+    <!-- 404 -->
+    <section class="page" id="page-404">
+        <h1>Страница не найдена</h1>
+        <button class="btn" onclick="go('home')">На главную</button>
+    </section>
+</main>
+<style>
+* {
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box;
+}
+
+body {
+ font-family: Arial, sans-serif;
+ background: #f4f6f8;
+ color: #222;
+ min-height: 100vh;
+ display: flex; flex-direction: column;
+}
+
+header {
+ background: #2c3e50;
+ color: #fff;
+ padding: 15px 20px;
+ display: flex;
+ justify-content: space-between;
+ flex-wrap: wrap;
+ gap: 10px;
+ align-items: center;
+}
+
+header .logo {
+ font-size: 20px;
+ font-weight: bold;
+}
+
+header nav {
+ display: flex;
+ gap: 15px;
+ flex-wrap: wrap;
+}
+
+header nav a {
+ color: #fff;
+ text-decoration: none;
+ font-size: 15px;
+ cursor: pointer;
+}
+
+header nav a:hover {
+ text-decoration: underline;
+}
+
+main {
+ flex: 1;
+ max-width: 960px;
+ width: 100%;
+ margin: 20px auto;
+ padding: 20px;
+ background: #fff;
+ border-radius: 8px;
+ box-shadow: 0 2px 6px rgba(0,0,0,.05);
+}
+
+footer {
+ text-align: center;
+ padding: 15px;
+ color: #666;
+ font-size: 13px;
+}
+
+h1 {
+ margin-bottom: 15px;
+ color: #2c3e50;
+}
+
+h2 {
+ margin-bottom: 10px;
+ color: #2c3e50;
+ font-size: 18px;
+}
+
+form {
+ display: flex;
+ flex-direction: column;
+ gap: 10px;
+ max-width: 500px;
+}
+
+input, select, button {
+ padding: 10px;
+ font-size: 15px;
+ border: 1px solid #ccd;
+ border-radius: 5px;
+ font-family: inherit;
+}
+
+button {
+ background: #27ae60;
+ color: #fff;
+ border: none;
+ cursor: pointer;
+ transition: .2s;
+}
+
+button:hover {
+ background: #219150;
+}
+
+.error {
+ background: #fdecea;
+ color: #c0392b;
+ padding: 10px;
+ border-radius: 5px;
+ margin-bottom: 10px;
+}
+
+.success {
+ background: #eafaf1;
+ color: #1e8449;
+ padding: 10px;
+ border-radius: 5px;
+ margin-bottom: 10px;
+}
+
+table {
+ width: 100%;
+ border-collapse: collapse;
+ margin-top: 15px;
+}
+
+th, td {
+ padding: 8px;
+ border: 1px solid #ddd;
+ text-align: left;
+ font-size: 14px;
+ vertical-align: top;
+}
+
+th {
+ background: #ecf0f1;
+}
+
+.btn {
+ display: inline-block;
+ padding: 8px 14px;
+ background: #2980b9;
+ color: #fff;
+ text-decoration: none;
+ border-radius: 5px;
+ margin-bottom: 10px;
+ cursor: pointer;
+ border: none;
+ font-size: 14px;
+}
+
+.btn:hover {
+ background: #1f6391;
+}
+
+.btn.danger {
+ background: #c0392b;
+}
+
+.btn.danger:hover {
+ background: #a93226;
+}
+
+.badge {
+ padding: 3px 8px;
+ border-radius: 4px;
+ font-size: 12px;
+ color: #fff;
+ display: inline-block;
+}
+
+.b-new {
+ background: #3498db;
+}
+
+.b-in_work {
+ background: #f39c12;
+}
+
+.b-done {
+ background: #27ae60;
+}
+
+.b-cancelled {
+ background: #c0392b;
+}
+
+.inline-form {
+ display: flex;
+ gap: 5px;
+ flex-wrap: wrap;
+ align-items: center;
+}
+
+.inline-form input, .inline-form select {
+ padding: 5px;
+ font-size: 13px;
+}
+
+.inline-form button {
+ padding: 5px 10px;
+ font-size: 13px;
+}
+
+.hidden {
+ display: none !important;
+}
+
+.hint {
+ margin-top: 10px;
+ color: #888;
+ font-size: 13px;
+}
+
+.info-box {
+ background: #f8f9fa;
+ padding: 12px;
+ border-left: 4px solid #3498db;
+ margin-bottom: 15px;
+ border-radius: 4px;
+ font-size: 14px;
+}
+
+.page {
+ display: none;
+}
+
+.page.active {
+ display: block;
+}
+
+nav a.active {
+ text-decoration: underline;
+ font-weight: bold;
+}
+
+@media (max-width: 480px) {
+ header {
+  flex-direction: column;
+  align-items: flex-start;
+ }
+
+ header nav {
+  flex-direction: column;
+  gap: 8px;
+ }
+
+ main {
+  margin: 10px;
+  padding: 15px;
+ }
+
+ table {
+  font-size: 12px;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+ }
+
+ form {
+  max-width: 100%;
+ }
+
+ h1 {
+  font-size: 22px;
+ }
+}
+</style>
+<script>
+
+const DB = {
+    get(key, def = []) {
+        try { return JSON.parse(localStorage.getItem('mns_' + key)) ?? def; }
+        catch { return def; }
+    },
+    set(key, val) {
+        localStorage.setItem('mns_' + key, JSON.stringify(val));
+    }
+};
+
+function initDB() {
+    if (!localStorage.getItem('mns_init')) {
+        const users = DB.get('users');
+        if (!users.find(u => u.login === 'adminka')) {
+            users.push({
+                id: 1,
+                login: 'adminka',
+                password: 'password',
+                fio: 'Администратор',
+                phone: '+7(999)-000-00-00',
+                email: 'admin@mns.ru',
+                role: 'admin',
+                created_at: new Date().toISOString()
+            });
+            DB.set('users', users);
+        }
+        DB.set('requests', []);
+        localStorage.setItem('mns_init', '1');
+    }
+}
+
+let SESSION = JSON.parse(localStorage.getItem('mns_session') || 'null');
+let CURRENT_PAGE = 'home';
+
+function saveSession() {
+    if (SESSION) localStorage.setItem('mns_session', JSON.stringify(SESSION));
+    else localStorage.removeItem('mns_session');
+}
+
+function go(page) {
+    const protectedPages = ['dashboard', 'create', 'admin'];
+    if (protectedPages.includes(page) && !SESSION) { page = 'login'; }
+    if (page === 'admin' && SESSION?.role !== 'admin') { page = 'home'; }
+
+    CURRENT_PAGE = page;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const el = document.getElementById('page-' + page);
+    if (el) el.classList.add('active');
+    else document.getElementById('page-404').classList.add('active');
+
+    if (page === 'dashboard') renderDashboard();
+    if (page === 'admin') renderAdmin();
+    if (page === 'create') {
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
+        document.getElementById('cr-date').value = d.toISOString().slice(0, 10);
+        document.getElementById('cr-time').value = '10:00';
+        toggleCustom();
+    }
+
+    renderNav();
+    clearMessages();
+    window.scrollTo(0, 0);
+}
+
+function renderNav() {
+    const nav = document.getElementById('nav');
+    if (SESSION) {
+        let html = `<a href="#" onclick="go('dashboard'); return false;" class="${CURRENT_PAGE==='dashboard'?'active':''}">Мои заявки</a>
+                    <a href="#" onclick="go('create'); return false;" class="${CURRENT_PAGE==='create'?'active':''}">Новая заявка</a>`;
+        if (SESSION.role === 'admin') {
+            html += `<a href="#" onclick="go('admin'); return false;" class="${CURRENT_PAGE==='admin'?'active':''}">Админ-панель</a>`;
+        }
+        html += `<a href="#" onclick="doLogout(); return false;">Выйти (${escapeHtml(SESSION.login)})</a>`;
+        nav.innerHTML = html;
+    } else {
+        nav.innerHTML = `
+            <a href="#" onclick="go('login'); return false;" class="${CURRENT_PAGE==='login'?'active':''}">Вход</a>
+            <a href="#" onclick="go('register'); return false;" class="${CURRENT_PAGE==='register'?'active':''}">Регистрация</a>
+        `;
+    }
+}
+
+function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+}
+
+function clearMessages() {
+    document.getElementById('messages').innerHTML = '';
+}
+
+function showErrors(list) {
+    document.getElementById('messages').innerHTML =
+        list.map(e => `<div class="error">${escapeHtml(e)}</div>`).join('');
+    window.scrollTo(0, 0);
+}
+
+function showSuccess(msg) {
+    document.getElementById('messages').innerHTML =
+        `<div class="success">${escapeHtml(msg)}</div>`;
+}
+
+function statusLabel(s) {
+    return { new: 'Новая', in_work: 'В работе', done: 'Выполнена', cancelled: 'Отменена' }[s] || s;
+}
+
+function statusBadge(s) {
+    return `<span class="badge b-${s}">${statusLabel(s)}</span>`;
+}
+
+function nextId(arr) {
+    return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1;
+}
+
+function doRegister(e) {
+    e.preventDefault();
+    const login = document.getElementById('reg-login').value.trim();
+    const pass  = document.getElementById('reg-pass').value;
+    const fio   = document.getElementById('reg-fio').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+
+    const errors = [];
+    if (login.length < 3) errors.push('Логин минимум 3 символа');
+    if (pass.length < 6) errors.push('Пароль минимум 6 символов');
+    if (!/^[А-Яа-яЁё\s]+$/.test(fio)) errors.push('ФИО — только кириллица и пробелы');
+    if (!/^\+7 \d{3} \d{3} \d{2} \d{2}$/.test(phone)) errors.push('Телефон в формате +7(XXX)-XXX-XX-XX');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push('Некорректный email');
+
+    const users = DB.get('users');
+    if (users.find(u => u.login === login)) errors.push('Логин занят');
+
+    if (errors.length) { showErrors(errors); return; }
+
+    users.push({
+        id: nextId(users), login, password: pass, fio, phone, email,
+        role: 'user', created_at: new Date().toISOString()
+    });
+    DB.set('users', users);
+
+    const u = users.find(x => x.login === login);
+    SESSION = { user_id: u.id, login: u.login, role: u.role };
+    saveSession();
+
+    showSuccess('Регистрация успешна! Добро пожаловать.');
+    setTimeout(() => go('dashboard'), 500);
+}
+
+function doLogin(e) {
+    e.preventDefault();
+    const login = document.getElementById('log-login').value.trim();
+    const pass  = document.getElementById('log-pass').value;
+
+    const u = DB.get('users').find(x => x.login === login && x.password === pass);
+    if (!u) { showErrors(['Неверный логин или пароль']); return; }
+
+    SESSION = { user_id: u.id, login: u.login, role: u.role };
+    saveSession();
+    go('dashboard');
+}
+
+function doLogout() {
+    SESSION = null;
+    saveSession();
+    go('home');
+}
+
+function toggleCustom() {
+    const v = document.getElementById('cr-service').value;
+    const inp = document.getElementById('cr-custom');
+    if (v === 'Иная услуга') inp.classList.remove('hidden');
+    else { inp.classList.add('hidden'); inp.value = ''; }
+}
+
+function doCreate(e) {
+    e.preventDefault();
+    const address = document.getElementById('cr-address').value.trim();
+    const phone   = document.getElementById('cr-phone').value.trim();
+    const service = document.getElementById('cr-service').value;
+    const custom  = document.getElementById('cr-custom').value.trim();
+    const date    = document.getElementById('cr-date').value;
+    const time    = document.getElementById('cr-time').value;
+    const pay     = document.getElementById('cr-pay').value;
+
+    const errors = [];
+    if (!address) errors.push('Укажите адрес');
+    if (!/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/.test(phone)) errors.push('Телефон в формате +7(XXX)-XXX-XX-XX');
+    if (!service) errors.push('Выберите услугу');
+    if (service === 'Иная услуга' && !custom) errors.push('Опишите иную услугу');
+    if (!date || !time) errors.push('Укажите дату и время');
+
+    if (errors.length) { showErrors(errors); return; }
+
+    const reqs = DB.get('requests');
+    reqs.push({
+        id: nextId(reqs),
+        user_id: SESSION.user_id,
+        address, phone,
+        service_name: service,
+        custom_service: service === 'Иная услуга' ? custom : '',
+        desired_date: date,
+        desired_time: time,
+        payment_type: pay,
+        status: 'new',
+        cancel_reason: '',
+        created_at: new Date().toISOString()
+    });
+    DB.set('requests', reqs);
+
+    e.target.reset();
+    toggleCustom();
+
+    showSuccess('Заявка создана!');
+    setTimeout(() => go('dashboard'), 400);
+}
+
+function renderDashboard() {
+    const rows = DB.get('requests')
+        .filter(r => r.user_id === SESSION.user_id)
+        .sort((a, b) => b.id - a.id);
+
+    const box = document.getElementById('dashboard-content');
+    if (!rows.length) {
+        box.innerHTML = '<p style="margin-top:15px;color:#888">У вас пока нет заявок.</p>';
+        return;
+    }
+
+    box.innerHTML = `
+    <table>
+        <tr><th>№</th><th>Услуга</th><th>Адрес</th><th>Дата/время</th><th>Оплата</th><th>Статус</th></tr>
+        ${rows.map(r => `
+            <tr>
+                <td>${r.id}</td>
+                <td>${escapeHtml(r.service_name === 'Иная услуга' ? r.custom_service : r.service_name)}</td>
+                <td>${escapeHtml(r.address)}</td>
+                <td>${escapeHtml(r.desired_date)} ${escapeHtml(r.desired_time)}</td>
+                <td>${r.payment_type === 'cash' ? 'Наличные' : 'Карта'}</td>
+                <td>${statusBadge(r.status)}
+                    ${r.cancel_reason ? '<br><small>' + escapeHtml(r.cancel_reason) + '</small>' : ''}
+                </td>
+            </tr>
+        `).join('')}
+    </table>`;
+}
+
+function renderAdmin() {
+    const users = DB.get('users');
+    const reqs = DB.get('requests').slice().sort((a, b) => b.id - a.id);
+
+    const box = document.getElementById('admin-content');
+    if (!reqs.length) {
+        box.innerHTML = '<p style="margin-top:15px;color:#888">Заявок пока нет.</p>';
+        return;
+    }
+
+    box.innerHTML = `
+    <table>
+        <tr>
+            <th>№</th><th>Заявитель</th><th>Контакты</th><th>Услуга</th>
+            <th>Адрес</th><th>Дата/время</th><th>Статус</th><th>Действие</th>
+        </tr>
+        ${reqs.map(r => {
+            const u = users.find(x => x.id === r.user_id) || { fio: '?', email: '?' };
+            return `
+            <tr>
+                <td>${r.id}</td>
+                <td>${escapeHtml(u.fio)}</td>
+                <td>${escapeHtml(r.phone)}<br><small>${escapeHtml(u.email)}</small></td>
+                <td>${escapeHtml(r.service_name === 'Иная услуга' ? r.custom_service : r.service_name)}</td>
+                <td>${escapeHtml(r.address)}</td>
+                <td>${escapeHtml(r.desired_date)} ${escapeHtml(r.desired_time)}</td>
+                <td>${statusBadge(r.status)}
+                    ${r.cancel_reason ? '<br><small>' + escapeHtml(r.cancel_reason) + '</small>' : ''}
+                </td>
+                <td>
+                    <form class="inline-form" onsubmit="doChangeStatus(event, ${r.id})">
+                        <select name="status">
+                            <option value="in_work"   ${r.status==='in_work'?'selected':''}>В работе</option>
+                            <option value="done"      ${r.status==='done'?'selected':''}>Выполнено</option>
+                            <option value="cancelled" ${r.status==='cancelled'?'selected':''}>Отменено</option>
+                        </select>
+                        <input type="text" name="reason" placeholder="Причина отмены" value="${escapeHtml(r.cancel_reason || '')}">
+                        <button type="submit">OK</button>
+                    </form>
+                </td>
+            </tr>`;
+        }).join('')}
+    </table>`;
+}
+
+function doChangeStatus(e, reqId) {
+    e.preventDefault();
+    const form = e.target;
+    const status = form.status.value;
+    const reason = form.reason.value.trim();
+
+    if (status === 'cancelled' && !reason) {
+        showErrors(['Укажите причину отмены']);
+        return;
+    }
+
+    const reqs = DB.get('requests');
+    const r = reqs.find(x => x.id === reqId);
+    if (!r) return;
+    r.status = status;
+    r.cancel_reason = status === 'cancelled' ? reason : '';
+    DB.set('requests', reqs);
+
+    showSuccess('Статус обновлён');
+    setTimeout(renderAdmin, 300);
+}
+initDB();
+renderNav();
+go(SESSION ? 'dashboard' : 'home');
+</script>
+</body>
+</html>
